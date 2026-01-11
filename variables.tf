@@ -9,3 +9,11 @@ variable "repo_count" {
   }
 }
 
+variable "env" {
+  description = "Deployment environment"
+  type = string
+  validation {
+    condition = var.env == "dev" || var.env =="prod"
+    error_message = "Env must be 'dev' or 'prod'"
+  }
+}
