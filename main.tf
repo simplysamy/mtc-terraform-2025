@@ -31,7 +31,7 @@ resource "github_repository_file" "readme" {
 
 output "clone_urls" {
   value = {
-    for index in github_repository.mtc_repo[*] : index.name => index.https_clone_url
+    for index in github_repository.mtc_repo[*] : index.name => index.http_clone_url
   }
   description = "repository names"
   sensitive   = false
