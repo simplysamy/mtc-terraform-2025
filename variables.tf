@@ -4,16 +4,23 @@ variable "repo_count" {
   default     = 1
 
   validation {
-    condition = var.repo_count < 5
+    condition     = var.repo_count < 5
     error_message = "Don't deploy more than 5 repo"
   }
 }
 
 variable "env" {
   description = "Deployment environment"
-  type = string
+  type        = string
   validation {
-    condition = var.env == "dev" || var.env =="prod"
+    condition     = contains(["dev", "prod"], var.env)
     error_message = "Env must be 'dev' or 'prod'"
   }
 }
+
+# variable "visibility" {
+#   description = "Repository visibility"
+#   type        = string
+#   default     = var.env == "dev" ? "private" : "public"
+  
+# }
