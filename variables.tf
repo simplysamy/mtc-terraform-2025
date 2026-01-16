@@ -18,9 +18,14 @@ variable "env" {
   }
 }
 
+variable "repos" {
+  description = "Repositories"
+  type        = set(string)
+}
+
 # variable "visibility" {
 #   description = "Repository visibility"
 #   type        = string
 #   default     = var.env == "dev" ? "private" : "public"
-  
+
 # }
