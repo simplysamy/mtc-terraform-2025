@@ -20,7 +20,7 @@ variable "env" {
 
 variable "repos" {
   description = "Repositories"
-  type        = set(string)
+  type        = map(map(string))
   validation {
     condition     = length(var.repos) <= var.repo_max
     error_message = "Please don't deploy more repo than repo_max allows"

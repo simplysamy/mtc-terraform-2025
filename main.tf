@@ -1,7 +1,12 @@
+data "github_user" "current" {
+  username = ""
+}
+
+
 resource "github_repository" "mtc_repo" {
   for_each    = var.repos
   name        = "mtc-repo-${each.key}"
-  description = "${each.value} code for mtc repository"
+  description = "Code for mtc repository"
   visibility  = var.env == "dev" ? "private" : "public"
   auto_init   = true
   provisioner "local-exec" {
@@ -26,7 +31,7 @@ resource "github_repository_file" "index-html" {
   for_each            = var.repos
   repository          = github_repository.mtc_repo[each.key].name
   branch              = "main"
-  file                = "index.html"
+  file                = each.value.filename
   content             = "Hello terraform!"
   overwrite_on_create = true
   lifecycle {
@@ -41,7 +46,7 @@ resource "github_repository_file" "readme" {
   repository          = github_repository.mtc_repo[each.key].name
   branch              = "main"
   file                = "README.md"
-  content             = "# This ${var.env} is for infra developer"
+  content             = "# This is a ${var.env} ${each.value.lang} repository for ${each.key} developers"
   overwrite_on_create = true
   lifecycle {
     ignore_changes = [
