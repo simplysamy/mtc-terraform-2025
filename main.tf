@@ -46,7 +46,11 @@ resource "github_repository_file" "readme" {
   repository          = github_repository.mtc_repo[each.key].name
   branch              = "main"
   file                = "README.md"
-  content             = "# This is a ${var.env} ${each.value.lang} repository for ${each.key} developers. Infra was last edited by ${data.github_user.current.name}"
+  content             = <<-EOT
+                          # This is a ${var.env} ${each.value.lang} repository for ${each.key} developers.
+                          The Infra was last edited by ${data.github_user.current.name}
+                          EOT
+
   overwrite_on_create = true
   # lifecycle {
   #   ignore_changes = [
