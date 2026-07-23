@@ -6,6 +6,13 @@ resource "github_repository" "mtc_repo" {
   description = "Code for mtc repository"
   visibility  = var.env == "dev" ? "private" : "public"
   auto_init   = true
+
+  pages {
+    source {
+      branch = "main"
+      path   = "/"
+    }
+  }
   provisioner "local-exec" {
     command = "gh repo view ${self.name} --web"
   }
@@ -18,13 +25,13 @@ resource "github_repository" "mtc_repo" {
 
 resource "terraform_data" "repo-clone" {
   for_each   = var.repos
-  depends_on = [github_repository_file.index-html, github_repository_file.readme]
+  depends_on = [github_repository_file.main, github_repository_file.readme]
 
   provisioner "local-exec" {
     command = "gh repo clone ${github_repository.mtc_repo[each.key].name}"
   }
 }
-resource "github_repository_file" "index-html" {
+resource "github_repository_file" "main" {
   for_each            = var.repos
   repository          = github_repository.mtc_repo[each.key].name
   branch              = "main"
@@ -50,16 +57,17 @@ resource "github_repository_file" "readme" {
     author_name = data.github_user.current.name
   })
 
-  # content             = <<-EOT  
-  #                         # This is a ${var.env} ${each.value.lang} repository for ${each.key} developers.
-  #                         The Infra was last edited by ${data.github_user.current.name}
-  #                         EOT
 
   overwrite_on_create = true
-  # lifecycle {
-  #   ignore_changes = [
-  #     content, 
-  #   ]
-  # }
+  lifecycle {
+    ignore_changes = [
+      content, 
+    ]
+  }
+}
+
+moved {
+  from = github_repository_file.index-html
+  to   = github_repository_file.main
 }
 
