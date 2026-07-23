@@ -1,6 +1,3 @@
-data "github_user" "current" {
-  username = ""
-}
 
 
 resource "github_repository" "mtc_repo" {
@@ -46,10 +43,17 @@ resource "github_repository_file" "readme" {
   repository          = github_repository.mtc_repo[each.key].name
   branch              = "main"
   file                = "README.md"
-  content             = <<-EOT
-                          # This is a ${var.env} ${each.value.lang} repository for ${each.key} developers.
-                          The Infra was last edited by ${data.github_user.current.name}
-                          EOT
+  content             = templatefile("templates/readme.tftpl", {
+    env = var.env,
+    lang = each.value.lang,
+    repo = each.key
+    author_name = data.github_user.current.name
+  })
+
+  # content             = <<-EOT  
+  #                         # This is a ${var.env} ${each.value.lang} repository for ${each.key} developers.
+  #                         The Infra was last edited by ${data.github_user.current.name}
+  #                         EOT
 
   overwrite_on_create = true
   # lifecycle {
@@ -59,11 +63,3 @@ resource "github_repository_file" "readme" {
   # }
 }
 
-output "clone_urls" {
-  value = {
-    for i in github_repository.mtc_repo : i.name => [i.ssh_clone_url, i.http_clone_url]
-    # for name, repo in github_repository.mtc_repo : name => repo.http_clone_url
-  }
-  description = "Repository URLs"
-  sensitive   = false
-}
