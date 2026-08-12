@@ -4,13 +4,16 @@ resource "github_repository" "mtc_repo" {
   for_each    = var.repos
   name        = "mtc-repo-${each.key}"
   description = "Code for mtc repository"
-  visibility  = var.env == "dev" ? "private" : "public"
+  visibility  = var.env == "dev" ? "public" : "private"
   auto_init   = true
 
-  pages {
-    source {
-      branch = "main"
-      path   = "/"
+  dynamic "pages" {
+    for_each = each.value.pages ? [1] : []
+    content {
+      source {
+        branch = "main"
+        path   = "/"
+      }
     }
   }
   provisioner "local-exec" {
@@ -40,20 +43,20 @@ resource "github_repository_file" "main" {
   overwrite_on_create = true
   lifecycle {
     ignore_changes = [
-      content, 
+      content,
     ]
   }
 }
 
 resource "github_repository_file" "readme" {
-  for_each            = var.repos
-  repository          = github_repository.mtc_repo[each.key].name
-  branch              = "main"
-  file                = "README.md"
-  content             = templatefile("templates/readme.tftpl", {
-    env = var.env,
-    lang = each.value.lang,
-    repo = each.key
+  for_each   = var.repos
+  repository = github_repository.mtc_repo[each.key].name
+  branch     = "main"
+  file       = "README.md"
+  content = templatefile("templates/readme.tftpl", {
+    env         = var.env,
+    lang        = each.value.lang,
+    repo        = each.key
     author_name = data.github_user.current.name
   })
 
@@ -61,7 +64,7 @@ resource "github_repository_file" "readme" {
   overwrite_on_create = true
   lifecycle {
     ignore_changes = [
-      content, 
+      content,
     ]
   }
 }
